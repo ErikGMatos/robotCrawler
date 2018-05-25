@@ -19,7 +19,7 @@ const puppeteer = require('puppeteer');
     console.log('escrevendo cidade');
     const inputCidade = '.select2-search.select2-search--dropdown';
     await page.waitForSelector(resultsSelector);
-    await page.type(inputCidade, 'São Paulo - SP' , {delay: 500}); 
+    await page.type(inputCidade, 'São Paulo - SP' , {delay: 100}); 
    
     console.log('clicando na lista');
     const listaEscolhida = '.select2-results__option.select2-results__option--highlighted';
