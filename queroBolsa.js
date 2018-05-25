@@ -19,14 +19,16 @@ const puppeteer = require('puppeteer');
     console.log('escrevendo cidade');
     const inputCidade = '.select2-search.select2-search--dropdown';
     await page.waitForSelector(resultsSelector);
-    await page.type(inputCidade, 'São Paulo - SP' , {delay: 200}); 
+    await page.type(inputCidade, 'São Paulo - SP' , {delay: 500}); 
    
-    console.log('clicando botao');
-    const submit = 'button[type="submit]';
-    await page.click(submit);
-
-
+    console.log('clicando na lista');
+    const listaEscolhida = '.select2-results__option.select2-results__option--highlighted';
+    await page.waitForSelector(listaEscolhida);
+    await page.click(listaEscolhida);
+    console.log('cliquei na lista');
     
+    const botaoEnviar = '.pgc-btn.pgc-btn--main.pgc-btn--block.js-btn-lead';
+    await page.click(botaoEnviar);
 
 
     
