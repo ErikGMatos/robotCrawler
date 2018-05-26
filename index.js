@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs-extra');
 
 (async function main() {
     
@@ -15,6 +16,8 @@ const puppeteer = require('puppeteer');
         async function timeout(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
+
+        await fs.writeFile('out.csv', 'section,name\n');
 
         for (let i = 0; i < sections.length; i++){
 
@@ -39,12 +42,14 @@ const puppeteer = require('puppeteer');
             for (const li of lis){
                 const name = await li.$eval('h2', h2 => h2.innerText);
                 console.log('nome ',name);
+
+                await fs.appendFile('out.csv', `"${buttonName}","${name}"\n`);
             }
 
             
             
         }
-        await page.screenshot({path: 'example.png'});
+        console.log('feito!!!');
         await page.screenshot({path: 'screenshot.png'});
         await browser.close();
 
