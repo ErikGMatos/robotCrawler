@@ -1,4 +1,4 @@
-
+'use strict';
     const puppeteer = require('puppeteer');
 
     (async () => {
@@ -6,13 +6,13 @@
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     console.log('iniciando conexão');
-    const cpf = '35168598811';
+    const cpf = 'xxxxxxxxxxxxxx';
     console.log('acessando URL');
     await page.goto('http://sistemasenem.inep.gov.br/EnemSolicitacao/login.seam');
     console.log('inserindo dados');
     // Faz login no site
-    await page.type('#username', '191010104484'); 
-    await page.type('#password', 'UniSL2016');
+    await page.type('#username', '1234'); 
+    await page.type('#password', '0987654321');
     await page.click('input[type="image"]');
     console.log('fazendo login');
     // Busca pela aba que contem a edicao do enem
