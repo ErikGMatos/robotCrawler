@@ -8,7 +8,7 @@
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
 
-const cpf = '10493092609';
+const cpf = 'xxxxxxxxxxxxxxx';
 
 await page.goto('http://sistemasenem.inep.gov.br/EnemSolicitacao/login.seam');
 
