@@ -5,7 +5,7 @@ const fs = require('fs-extra');
     
     try {
         console.log('iniciando conexão...');
-        const browser = await puppeteer.launch({headless: false, args: ['--start-fullscreen']});
+        const browser = await puppeteer.launch({headless: false,args: ['--start-fullscreen']});
         const page = await browser.newPage();
         page.setViewport({width:1920, height: 1020});
         //page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36');
@@ -30,14 +30,14 @@ const fs = require('fs-extra');
         await page.waitForSelector('#loading', {visible:false});
         await timeout(2000);
         var indice = 1;
-
+        
 
         
-         await timeout(5000);
-         //const cidadeEscolhida = await page.$('#sel_cidade div span span:last-child');
-         //const cidadeEscolhidaNome = await page.evaluate(cidadeEscolhida => cidadeEscolhida.innerText, cidadeEscolhida);
+        await timeout(1000);
+        //const cidadeEscolhida = await page.$('#sel_cidade div span span:last-child');
+        //const cidadeEscolhidaNome = await page.evaluate(cidadeEscolhida => cidadeEscolhida.innerText, cidadeEscolhida);
         
-        //await fs.writeFile('educamais/'+cidadeEscolhidaNome+'.csv', 'Faculdade,Curso,Tipo,Turno,Modalidade,Local,Preco,Desconto em %,Link,Valor cheio,\n');
+        await fs.writeFile('educamais/teste.csv', 'Faculdade,Curso,Modalidade,Turno,Local,Valor cheio,Bolsa,Preço\n');
         await Loop1();
 
         async function Loop1() { 
@@ -50,14 +50,23 @@ const fs = require('fs-extra');
 
                 for (let k = 0; k < curosDisponiveis.length; k++){
                     await timeout(4000);
-                    if(indice == 5){
-
+                    const curosDisponiveis = await page.$$('#SuperiorPos .boxInstitucaoHome .lnkCursosDisponiveis span');
+                    if(indice > 4){
+                    const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
                     setaDireita.click();
-                    await timeout(4000);
-                    indice = 1;
+                    await timeout(2000);
+                    
+                    
+                    }else if (indice >8){
+                    const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                    setaDireita.click();
+                    await timeout(2000);
+                    setaDireita.click();
                     
                     }
-                    curosDisponiveis[k].click();;
+
+                    const next = curosDisponiveis[k];
+                    next.click();
                     
                     await timeout(5000);
                     console.log(curosDisponiveis.length +' cursos disponiveis\n');
@@ -113,7 +122,7 @@ const fs = require('fs-extra');
                                 const seletorPrecoCentavos = await section.$('.campo.valor .info.cor strong');
                                 const nomePrecoCentavos = await page.evaluate(seletorPrecoCentavos => seletorPrecoCentavos.innerText, seletorPrecoCentavos);
                                 
-                                //await fs.appendFile('educamais/teste.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeModalidade}','${nomeTurno}','${nomeLocal}','${nomeValorCheio}','${nomeDescontoBolsa}','${nomePreco},'${nomePrecoCentavos}'\n`);
+                                await fs.appendFile('educamais/teste.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeModalidade}','${nomeTurno}','${nomeLocal}','${nomeValorCheio}','${nomeDescontoBolsa}','${nomePreco}${nomePrecoCentavos}'\n`);
                                 
                                 console.log('Faculdade: ',nomeFaculdade + '\nCurso: ', nomeCurso + '\nModalidade: ', nomeModalidade + '\nTurno: ', nomeTurno + '\nLocal: ', nomeLocal + '\nValor sem desconto: ', nomeValorCheio + '\nBolsa: ', nomeDescontoBolsa +'%' + '\nPreço: ', nomePreco+nomePrecoCentavos);
                                 
@@ -124,7 +133,7 @@ const fs = require('fs-extra');
                             const nextBtnFIM = await page.$('.paginacao li.disabled:nth-last-child(2) a');
                             
                             if(nextBtnFIM === null){
-                                
+                            
                                 nextBtn.click(); 
                                 await timeout(2000);
                                 
@@ -143,17 +152,17 @@ const fs = require('fs-extra');
 
 
                     indice++;
+                   
+                    //await timeout(5000);
                     await page.goto('https://www.educamaisbrasil.com.br/');
-                    await page.$$('#SuperiorPos .boxInstitucaoHome .lnkCursosDisponiveis span');
-                    await timeout(10000);
-                    await Loop1();
-                    
+                    await page.waitForSelector('#loading', {visible:false});
+
                 }
                 
             }
             
             catch (e) {
-               console.log('O erro foi no LOOP1', e);
+               console.log('O erro foi no LOOP1', e.stack);
            }
             
                 
