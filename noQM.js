@@ -5,7 +5,7 @@ const fs = require('fs-extra');
     
     try {
         console.log('iniciando conexão...');
-        const browser = await puppeteer.launch({headless: false,args: ['--start-fullscreen']});
+        const browser = await puppeteer.launch({headless: true,args: ['--start-fullscreen']});
         const page = await browser.newPage();
         page.setViewport({width:1920, height: 1020});
         //page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36');
@@ -15,7 +15,7 @@ const fs = require('fs-extra');
         async function timeout(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-
+        const cidadeEscolhida = 'porto velho';
         console.log('acessando...');
         await page.goto('https://www.educamaisbrasil.com.br/');
         await page.waitForSelector('#loading', {visible:false});
@@ -24,7 +24,7 @@ const fs = require('fs-extra');
         inputDigita.click();
         const inputCidade = '#listaInstituicoes input';
         await page.waitForSelector(inputCidade);
-        await page.type(inputCidade, 'jacarei ' , {delay: 100});
+        await page.type(inputCidade, cidadeEscolhida , {delay: 100});
         const liDaLista = await page.waitForSelector('.ui-select-choices-row.active');
         liDaLista.click();
         await page.waitForSelector('#loading', {visible:false});
@@ -37,7 +37,7 @@ const fs = require('fs-extra');
         //const cidadeEscolhida = await page.$('#sel_cidade div span span:last-child');
         //const cidadeEscolhidaNome = await page.evaluate(cidadeEscolhida => cidadeEscolhida.innerText, cidadeEscolhida);
         
-        await fs.writeFile('educamais/teste.csv', 'Faculdade,Curso,Modalidade,Turno,Local,Valor cheio,Bolsa,Preço\n');
+        await fs.writeFile('educamais/'+cidadeEscolhida+'.csv', 'Faculdade,Curso,Modalidade,Turno,Local,Valor cheio,Bolsa,Preço\n');
         await Loop1();
 
         async function Loop1() { 
@@ -51,18 +51,96 @@ const fs = require('fs-extra');
                 for (let k = 0; k < curosDisponiveis.length; k++){
                     await timeout(4000);
                     const curosDisponiveis = await page.$$('#SuperiorPos .boxInstitucaoHome .lnkCursosDisponiveis span');
-                    if(indice > 4){
-                    const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
-                    setaDireita.click();
-                    await timeout(2000);
-                    
-                    
-                    }else if (indice >8){
-                    const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
-                    setaDireita.click();
-                    await timeout(2000);
-                    setaDireita.click();
-                    
+                     if (indice > 32){
+                        const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+
+                    }else if (indice > 28){
+                        const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        
+                    }else if (indice >24){
+                        const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        
+                    }else if (indice >20){
+                        const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        
+                    }
+                    else if (indice >16){
+                        const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        
+                    } else if (indice >12){
+                        const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        
+                    } else if (indice >8){
+                        const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                        setaDireita.click();
+                        await timeout(2000);
+                        setaDireita.click();
+                        
+                    }else if (indice >4){
+                        const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
+                        setaDireita.click();
+                       
+                        
                     }
 
                     const next = curosDisponiveis[k];
@@ -122,7 +200,7 @@ const fs = require('fs-extra');
                                 const seletorPrecoCentavos = await section.$('.campo.valor .info.cor strong');
                                 const nomePrecoCentavos = await page.evaluate(seletorPrecoCentavos => seletorPrecoCentavos.innerText, seletorPrecoCentavos);
                                 
-                                await fs.appendFile('educamais/teste.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeModalidade}','${nomeTurno}','${nomeLocal}','${nomeValorCheio}','${nomeDescontoBolsa}','${nomePreco}${nomePrecoCentavos}'\n`);
+                                await fs.appendFile('educamais/'+cidadeEscolhida+'.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeModalidade}','${nomeTurno}','${nomeLocal}','${nomeValorCheio}','${nomeDescontoBolsa}','${nomePreco}${nomePrecoCentavos}'\n`);
                                 
                                 console.log('Faculdade: ',nomeFaculdade + '\nCurso: ', nomeCurso + '\nModalidade: ', nomeModalidade + '\nTurno: ', nomeTurno + '\nLocal: ', nomeLocal + '\nValor sem desconto: ', nomeValorCheio + '\nBolsa: ', nomeDescontoBolsa +'%' + '\nPreço: ', nomePreco+nomePrecoCentavos);
                                 
@@ -170,7 +248,7 @@ const fs = require('fs-extra');
 
         console.log('\nTerminou :)!!!');
         await page.screenshot({path: 'screenshot.png'});
-        //await browser.close();
+        await browser.close();
             
         } catch (e) {
             
