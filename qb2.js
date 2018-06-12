@@ -14,15 +14,14 @@ const fs = require('fs-extra');
         async function timeout(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-
-        
+        const cidade ='araucaria';
         console.log('acessando...');
         await page.goto('https://querobolsa.com.br/');
         const inputDigita = await page.waitForSelector('span.select2-selection.select2-selection--single');
         inputDigita.click();
         const inputCidade = '.select2-search.select2-search--dropdown';
         await page.waitForSelector(inputCidade);
-        await page.type(inputCidade, 'rio de janeiro' , {delay: 100});
+        await page.type(inputCidade, cidade , {delay: 100});
         const liDaLista = await page.waitForSelector('.select2-results__option.select2-results__option--highlighted');
         liDaLista.click();
         const btn = await page.$('button.pgc-btn.pgc-btn--main.pgc-btn--block.js-btn-lead');
@@ -34,25 +33,26 @@ const fs = require('fs-extra');
         const cidadeEscolhidaNome = await page.evaluate(cidadeEscolhida => cidadeEscolhida.innerText, cidadeEscolhida);
         fechar.click(); //if you look in the browswer will see that it returns more than 700 pages, and I want to sweep them all.
         console.log('criando arquivo csv...');
-        await fs.writeFile(cidadeEscolhidaNome+'.csv', 'nomeFaculdade,nomeCurso,nomeTipo,nomeTurno,nomeModalidade,nomeLocal,nomePreco\n');
+        await fs.writeFile('queroBolsa/'+cidadeEscolhidaNome+'.csv', 'Faculdade,Curso,Tipo,Turno,Modalidade,Local,Preco,Desconto em %,Valor cheio,\n');
+        var array = [];
         await LoopFunction();
-
-        
-
-        async function LoopFunction() {           //Here is the loop that I know how to do
-        //     console.log('iniciou o looping');
-        
+       
+        async function LoopFunction() { 
+           
             try {
 
                 const sections = await page.$$('#courses-table .plp-card.js-plp-card');
                 
                 for (let i = 0; i < sections.length; i++){
+
                     const sections = await page.$$('#courses-table .plp-card.js-plp-card');
                     const paginaAtualSeleteor = await page.$('.page.current');
                     const paginaAtualNome = await page.evaluate(paginaAtualSeleteor => paginaAtualSeleteor.innerText, paginaAtualSeleteor);
+
                     console.log(sections.length +'\n');
                     console.log(paginaAtualNome +'\n');
                     console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+
                     const section = sections[i];
 
                     const seletorNome = await section.$('.plp-card-university a.plp-card-university__name');
@@ -75,24 +75,38 @@ const fs = require('fs-extra');
 
                     const seletorPreco = await section.$('.plp-card-pricing .plp-card-pricing__display.js-plp-card-offered-price');
                     const nomePreco = await page.evaluate(seletorPreco => seletorPreco.innerText, seletorPreco);
-                    
-                    
-                    await fs.appendFile(cidadeEscolhidaNome +'.csv', `"${nomeFaculdade}","${nomeCurso}","${nomeTipo}","${nomeTurno}","${nomeModalidade}","${nomeLocal}","${nomePreco}"\n`);
+
+                    const seletorNumDesconto = await section.$('.plp-card.js-plp-card .plp-card-pricing .plp-card-pricing__display');
+                    const nomeNumDesconto = await page.evaluate(seletorNumDesconto => seletorNumDesconto.innerText, seletorNumDesconto);
+
+                    const seletorLinkBolsa = await section.$('.plp-card.js-plp-card .plp-card-pricing .plp-card-pricing__cta.js-plp-card-pricing__cta.pgc-btn.pgc-btn--block.pgc-btn--main');
+                    const nomeLinkBolsa = await page.evaluate(seletorLinkBolsa => seletorLinkBolsa.href, seletorLinkBolsa);
+
+                    const seletorValorCheio = await section.$('.plp-card.js-plp-card .plp-card-pricing .plp-card-pricing__display');
+                    const nomeValorCheio = await page.evaluate(seletorValorCheio => seletorValorCheio.innerText, seletorValorCheio);
+                                       
+                    await fs.appendFile('queroBolsa/'+cidadeEscolhidaNome +'.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeTipo}','${nomeTurno}','${nomeModalidade}','${nomeLocal}','${nomePreco}','${nomeNumDesconto}','${nomeValorCheio}'\n`);
                     
                     console.log('Faculdade: ',nomeFaculdade +'\nCurso: ', nomeCurso + '\nTipo:', nomeTipo + '\nTurno:', nomeTurno
-                    + '\nModalidade: ', nomeModalidade + '\nLocal: ',nomeLocal + '\nPreço: ', nomePreco);
+                    + '\nModalidade: ', nomeModalidade + '\nLocal: ',nomeLocal + '\nPreço: ', nomePreco + '\nDesconto %: ', nomeNumDesconto + '\nLink: ', nomeLinkBolsa + '\nValor sem desconto: ', nomeValorCheio);
+
                     console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+                    var info = {};
+                    info.faculdade  = nomeFaculdade;
+                    array.push(info);
                 }
+                console.log(array);
                 const nextBtn = await page.$('#paginator .qb-pagination img[alt="next_page"');
+
                 if(nextBtn){
-                    nextBtn.click(); //here I check if there is the "NEXT" button that indicates that I have more pages to scan. 
-                    //If I have it I want it to return to the previous loop ..... So what about the error...
+
+                    nextBtn.click(); 
                     await page.waitForSelector('#js-cog', {visible:false});
                     await timeout(2000);
                     await page.$$('#courses-table .plp-card.js-plp-card');
-                    await LoopFunction();//I tried here to return to the LOOP, but without success = /
-                    console.log('foi pro looping');
+                    await LoopFunction();
                 }else{
+
                     console.log('entrou no ELSE');
                 }
 
@@ -110,6 +124,4 @@ const fs = require('fs-extra');
         
         console.log('O erro foi : ', e);
     }
-
-    
 })();
