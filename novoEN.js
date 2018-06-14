@@ -7,28 +7,15 @@ const fs = require('fs');
     async function timeout(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-    // browser.on('targetcreated', async (target) => {
-    //     let s = target.url();
-    //     //the test opens an about:blank to start - ignore this
-    //     if (s == 'about:blank') {
-    //         return;
-    //     }
-    // });
-try {
-    
-    
-    const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(60000);
-    
-    //await page._client.send('Page.setDownloadBehavior', {behavior: 'allow', downloadPath: './'});
-    // const client = await page.target().createCDPSession();
-    // await client.send('Page.setDownloadBehavior', {
-        //   behavior: 'allow', downloadPath: './'
-        // });
+   
+ try{ 
+        const page = await browser.newPage();
+        page.setDefaultNavigationTimeout(60000);
+        await page.setCacheEnabled(false);
         
         console.log('iniciando conexão');
         
-        const cpf = '35168598811';
+        const cpf = '10493092609';
         
         console.log('acessando URL');
         
@@ -61,54 +48,106 @@ try {
         // Inicia a pesquisa
         await page.type('#formularioForm input[type="text"]', cpf); 
         await timeout(2000);
+        console.log('digitando CPF');
         await page.click('#formularioForm input[type="image"]');
-        
+        console.log('Iniciando Pesquisa');
         // Busca a tabela com as informações
         const tabelaInscrito = '#resultadoForm';
+        console.log('aguardando tabela');
         await page.waitForSelector(tabelaInscrito);
         await timeout(2000);
         const slavar = "#resultadoForm input[type='image']";
+        console.log('clicando em salvar');
         await page.click(slavar);
+        console.log('aguardando retorno de sucesso');
         await page.waitForSelector('.infomsg');
         await timeout(2000);
+        console.log('indo pra relatorio de consultas');
         await page.click("#j_id57");
-        debugger;
+        console.log('aguardando tabela de relatorio de consultas');
         await page.waitForSelector("#listaSolicitacaoAtendidas");
-        arquivo = await page.evaluateHandle(() => document.querySelector('#listaSolicitacaoAtendidas tbody tr td').textContent.trim());
-        const aHandle = await page.evaluateHandle(() => document.querySelector('#listaSolicitacaoAtendidas tbody tr td:nth-last-child(1) a').href);
+        console.log('pegando numero do arquivo de texto');
+        const seletorNome = await page.$('#listaSolicitacaoAtendidas tbody tr td');
+        const nomeFaculdade = await page.evaluate(seletorNome => seletorNome.textContent.trim(), seletorNome);
+        arquivo = nomeFaculdade;
+       // arquivo = await page.evaluateHandle(() => document.querySelector('#listaSolicitacaoAtendidas tbody tr td').textContent.trim());
+        //const aHandle = await page.evaluateHandle(() => document.querySelector('#listaSolicitacaoAtendidas tbody tr td:nth-last-child(1) a').href);
+        console.log('setando pasta de download');
         await page._client.send('Page.setDownloadBehavior', {behavior: 'allow', downloadPath: '../../../../../teste'});
-        console.log(arquivo._remoteObject.value+'.txt');
-        //const reportLink = '#listaSolicitacaoAtendidas tbody tr td:nth-last-child(1) a';
-        await page.goto(aHandle._remoteObject.value, {waitUntil: 'networkidle2'});
+        console.log(arquivo+'.txt');
+        console.log('selecionando link');
+        const reportLink = await page.$('#listaSolicitacaoAtendidas tbody tr td:nth-last-child(1) a');
+        const href = await page.evaluate(reportLink => reportLink.href, reportLink);
+        await page.evaluate(reportLink => reportLink.target = '_self', reportLink);
+        
+        await page.goto(href);
         //console.log(aHandle._remoteObject.value);
-        await timeout(2000);
-        //await page.click(reportLink);
+        //console.log(self);
+        //console.log('clicando no link');
+        //await timeout(2000);
+        //reportLink.click();
         // console.log('lendo tabela');
-        
-        
-        
-        
-        
-                console.log('\n'+'encerrando conexão >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-                
-               
-               
-            } catch (error) {
-                console.log('o erro foi: '+ error);
-                
-            }
-            await timeout(20000);
-            var content;
-// First I want to read the file
-fs.readFileSync('./teste/'+arquivo._remoteObject.value+'.txt', function read(err, data) {
-    if (err) {
-        console.log('Erro no FS: ' + err);
-    }
-    content = data;
+        //console.log('\n'+'encerrando conexão >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
 
-    // Invoke the next step here however you like
-    console.log(content);   // Put all of the code here (not the best solution)
-              // Or put the next step in a function and invoke it
-});
-            await browser.close();
-            })();
+    } catch (error) {
+
+        console.log('o erro foi: '+ error);
+        
+    }
+    await timeout(2000);
+
+    // fs.exists('./teste/'+arquivo+'.txt',function(exists){
+    //         if(exists){
+    //             fs.readFile('./teste/'+arquivo+'.txt', 'utf8', function(err,data){
+    //                 if(err) {
+    //                     console.error("Could not open file: %s", err);
+                        
+    //                 }
+    //                 var myArray =[];
+    //                 var teste = data.split(';');
+    //                 var obj = {
+    //                     inscricao: teste[0],
+    //                     cpf: teste[1],
+    //                     nome: teste[2],
+    //                     natutecnologia: teste[3],
+    //                     humatecnologia: teste[4],
+    //                     linguagens: teste[5],
+    //                     matematica: teste[6],
+    //                     redacao: teste[7]
+    //                 }
+    //                 myArray.push(obj);
+    //                 console.log(myArray);
+    //             });
+    //         }else{
+    //             fs.exists('./teste/'+arquivo+'.txt.crdownload',function(exists){
+                
+    //                 if(exists){
+    //                     fs.readFile('./teste/'+arquivo+'.txt.crdownload', 'utf8', function(err,data){
+    //                         if(err) {
+    //                             console.error("Could not open file: %s", err);
+                                
+    //                         }
+    //                         var myArray =[];
+    //                         var teste = data.split(';');
+    //                         var obj = {
+    //                             inscricao: teste[0],
+    //                             cpf: teste[1],
+    //                             nome: teste[2],
+    //                             natutecnologia: teste[3],
+    //                             humatecnologia: teste[4],
+    //                             linguagens: teste[5],
+    //                             matematica: teste[6],
+    //                             redacao: teste[7]
+    //                         }
+    //                         myArray.push(obj);
+    //                         console.log(myArray);
+    //                     });
+    //                 }else{
+    //                     return
+    //                 }
+                
+    //         });
+    //     }
+    // });
+    await browser.close();
+})();
