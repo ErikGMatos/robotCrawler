@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+var rimraf = require('rimraf');
 
 (async () => {
     const browser = await puppeteer.launch({headless: true});
@@ -15,7 +16,7 @@ const fs = require('fs');
         
         console.log('iniciando conexão');
         
-        const cpf = '10493092609';
+        const cpf = '104930926090000000000';
         
         console.log('acessando URL');
         
@@ -47,7 +48,7 @@ const fs = require('fs');
         
         // Inicia a pesquisa
         await page.type('#formularioForm input[type="text"]', cpf); 
-        await timeout(2000);
+        //await timeout(2000);
         console.log('digitando CPF');
         await page.click('#formularioForm input[type="image"]');
         console.log('Iniciando Pesquisa');
@@ -55,13 +56,13 @@ const fs = require('fs');
         const tabelaInscrito = '#resultadoForm';
         console.log('aguardando tabela');
         await page.waitForSelector(tabelaInscrito);
-        await timeout(2000);
+        //await timeout(2000);
         const slavar = "#resultadoForm input[type='image']";
         console.log('clicando em salvar');
         await page.click(slavar);
         console.log('aguardando retorno de sucesso');
         await page.waitForSelector('.infomsg');
-        await timeout(2000);
+        //await timeout(2000);
         console.log('indo pra relatorio de consultas');
         await page.click("#j_id57");
         console.log('aguardando tabela de relatorio de consultas');
@@ -94,60 +95,98 @@ const fs = require('fs');
         console.log('o erro foi: '+ error);
         
     }
-    await timeout(2000);
+    await timeout(100);
 
-    // fs.exists('./teste/'+arquivo+'.txt',function(exists){
-    //         if(exists){
-    //             fs.readFile('./teste/'+arquivo+'.txt', 'utf8', function(err,data){
-    //                 if(err) {
-    //                     console.error("Could not open file: %s", err);
-                        
-    //                 }
-    //                 var myArray =[];
-    //                 var teste = data.split(';');
-    //                 var obj = {
-    //                     inscricao: teste[0],
-    //                     cpf: teste[1],
-    //                     nome: teste[2],
-    //                     natutecnologia: teste[3],
-    //                     humatecnologia: teste[4],
-    //                     linguagens: teste[5],
-    //                     matematica: teste[6],
-    //                     redacao: teste[7]
-    //                 }
-    //                 myArray.push(obj);
-    //                 console.log(myArray);
-    //             });
-    //         }else{
-    //             fs.exists('./teste/'+arquivo+'.txt.crdownload',function(exists){
+    fs.exists('./teste/'+arquivo+'.txt',function(exists){
+        if(exists){
+
+            fs.mkdir('./teste/Pasta'+arquivo, function (err) {
+                if (err) {
+                    console.log('failed to create directory', err);
+                } else {
+                    fs.rename('./teste/'+arquivo+'.txt', './teste/Pasta'+arquivo+'/'+arquivo+'.txt', (err) => {
+                        if (err){
+                            throw err;
+                            console.log('Rename complete!');
+                        } else{
+                            fs.readFile('./teste/Pasta'+arquivo+'/'+arquivo+'.txt', 'utf8', function(err,data){
+                                if(err) {
+                                    console.error("Could not open file: %s", err);
+                                    
+                                }else{
+
+                                    var myArray =[];
+                                    var teste = data.split(';');
+                                    var obj = {
+                                        inscricao: teste[0],
+                                        cpf: teste[1],
+                                        nome: teste[2],
+                                        natutecnologia: teste[3],
+                                        humatecnologia: teste[4],
+                                        linguagens: teste[5],
+                                        matematica: teste[6],
+                                        redacao: teste[7]
+                                    }
+                                    myArray.push(obj);
+                                    console.log(myArray);
+                                    rimraf('./teste/Pasta'+arquivo, function () {    
+                                        console.log('Removeu pasta');
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            }else{
+                fs.exists('./teste/'+arquivo+'.txt.crdownload',function(exists){
                 
-    //                 if(exists){
-    //                     fs.readFile('./teste/'+arquivo+'.txt.crdownload', 'utf8', function(err,data){
-    //                         if(err) {
-    //                             console.error("Could not open file: %s", err);
-                                
-    //                         }
-    //                         var myArray =[];
-    //                         var teste = data.split(';');
-    //                         var obj = {
-    //                             inscricao: teste[0],
-    //                             cpf: teste[1],
-    //                             nome: teste[2],
-    //                             natutecnologia: teste[3],
-    //                             humatecnologia: teste[4],
-    //                             linguagens: teste[5],
-    //                             matematica: teste[6],
-    //                             redacao: teste[7]
-    //                         }
-    //                         myArray.push(obj);
-    //                         console.log(myArray);
-    //                     });
-    //                 }else{
-    //                     return
-    //                 }
+                    if(exists){
+                        fs.mkdir('./teste/Pasta'+arquivo, function (err) {
+                            if (err) {
+                                console.log('failed to create directory', err);
+                            } else {
+                                fs.rename('./teste/'+arquivo+'.txt.crdownload', './teste/Pasta'+arquivo+'/'+arquivo+'.txt.crdownload', (err) => {
+                                    if (err) {
+                                        throw err;
+                                        console.log('Rename complete!');
+                                    } else{
+                                        fs.readFile('./teste/Pasta'+arquivo+'/'+arquivo+'.txt.crdownload', 'utf8', function(err,data){
+                                            if(err) {
+                                                console.error("Could not open file: %s", err);
+                                                
+                                            }else{
+
+                                                var myArray =[];
+                                                var teste = data.split(';');
+                                                var obj = {
+                                                    inscricao: teste[0],
+                                                    cpf: teste[1],
+                                                    nome: teste[2],
+                                                    natutecnologia: teste[3],
+                                                    humatecnologia: teste[4],
+                                                    linguagens: teste[5],
+                                                    matematica: teste[6],
+                                                    redacao: teste[7]
+                                                }
+                                                myArray.push(obj);
+                                                console.log(myArray);
+                                                rimraf('./teste/Pasta'+arquivo, function () {    
+                                                    console.log('Removeu pasta');
+                                                });
+                                               
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }else{
+                        return
+                    }
                 
-    //         });
-    //     }
-    // });
+            });
+        }
+    });
     await browser.close();
 })();
