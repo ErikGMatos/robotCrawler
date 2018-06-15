@@ -16,7 +16,7 @@ var Funcao = (async function main() {
         async function timeout(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-        const cidadeEscolhida = 'muriae';
+        const cidadeEscolhida = 'jacarei';
         console.log('acessando...');
         await page.goto('https://www.educamaisbrasil.com.br/');
         await page.waitForSelector('#loading', {visible:false});
@@ -206,8 +206,10 @@ var Funcao = (async function main() {
                                 console.log('Faculdade: ',nomeFaculdade + '\nCurso: ', nomeCurso + '\nModalidade: ', nomeModalidade + '\nTurno: ', nomeTurno + '\nLocal: ', nomeLocal + '\nValor sem desconto: ', nomeValorCheio + '\nBolsa: ', nomeDescontoBolsa +'%' + '\nPreço: ', nomePreco+nomePrecoCentavos);
                                 
                                 console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
-                                var nomeprecoTotal = `'${nomePreco}${nomePrecoCentavos}'`;
+                                var nomeprecoTotal = `${nomePreco}${nomePrecoCentavos}`;
+                                var dataAtual = dataAtualFormatada();
                                 obj={
+                                    nomeOrigem:'EducaMaisBrasil',
                                     cidadeEscolhida:cidadeEscolhida,
                                     nomeFaculdade:nomeFaculdade,
                                     nomeCurso:nomeCurso,
@@ -216,7 +218,8 @@ var Funcao = (async function main() {
                                     nomeLocal:nomeLocal,
                                     nomeValorCheio:nomeValorCheio,
                                     nomeDescontoBolsa:nomeDescontoBolsa,
-                                    nomePreco:nomeprecoTotal
+                                    nomePreco:nomeprecoTotal,
+                                    nomeDataPesquisa: dataAtual
 
                                 }
 
@@ -275,21 +278,35 @@ var Funcao = (async function main() {
     async function SQLdados(){
         var dados = await Funcao();
         funcaoGravarDados(dados);
+       console.log("Dados Gravado com sucesso");
     }
 
     async function funcaoGravarDados(data){
         var sql = require('mssql');
         try {
-            //for (let i = 0; i < data.length; i++){  
+            for (let i = 0; i < data.length; i++){  
                 var dados = data[i];
                 const pool = await sql.connect('mssql://sa:homologacao@201.45.136.166:49700/CaptacaoConversaoGraduacao');
-                const result = await sql.query`INSERT INTO [ATD].[NOME_TABELA] ([Faculdade],[Curso],[Modalidade],[Turno],[Local],[PrecoSemDesconto],[Bolsa],[Preco])
-                VALUES ('${dados.nomeFaculdade}','${dados.nomeCurso}','${dados.nomeModalidade}','${dados.nomeTurno}',
-                '${dados.nomeLocal}','${dados.nomeValorCheio}','${dados.nomeDescontoBolsa}','${dados.nomePreco}')`;
-           // }
+                await sql.query`INSERT INTO dbo.PesquisaDeMercado (Origem,Faculdade,Curso,Modalidade,Turno,Local,PrecoSemDesconto,Bolsa,Preco,DataPesquisa)
+                VALUES (${dados.nomeOrigem},${dados.nomeFaculdade},${dados.nomeCurso},${dados.nomeModalidade},${dados.nomeTurno},
+                ${dados.nomeLocal},${dados.nomeValorCheio},${dados.nomeDescontoBolsa},${dados.nomePreco},${dados.nomeDataPesquisa})`;
+                await sql.close();
+           }
         } catch (err) {
-            
+            console.log('Erro foi no Loop do Banco de dados: ',err);
         }
     }
 
     SQLdados();
+
+    function dataAtualFormatada(){
+        var data = new Date();
+        var dia = data.getDate();
+        if (dia.toString().length == 1)
+          dia = "0"+dia;
+        var mes = data.getMonth()+1;
+        if (mes.toString().length == 1)
+          mes = "0"+mes;
+        var ano = data.getFullYear();  
+        return dia+"/"+mes+"/"+ano;
+    }
