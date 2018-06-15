@@ -16,7 +16,7 @@ var Funcao = (async function main() {
         async function timeout(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-        const cidadeEscolhida = 'cicero dantas';
+        const cidadeEscolhida = 'muriae';
         console.log('acessando...');
         await page.goto('https://www.educamaisbrasil.com.br/');
         await page.waitForSelector('#loading', {visible:false});
@@ -38,7 +38,7 @@ var Funcao = (async function main() {
         //const cidadeEscolhida = await page.$('#sel_cidade div span span:last-child');
         //const cidadeEscolhidaNome = await page.evaluate(cidadeEscolhida => cidadeEscolhida.innerText, cidadeEscolhida);
         
-        await fs.writeFile('educamais/'+cidadeEscolhida+'.csv', 'Faculdade,Curso,Modalidade,Turno,Local,Valor cheio,Bolsa,Preço\n');
+        //await fs.writeFile('educamais/'+cidadeEscolhida+'.csv', 'Faculdade,Curso,Modalidade,Turno,Local,Valor cheio,Bolsa,Preço\n');
         await Loop1();
 
         async function Loop1() { 
@@ -201,7 +201,7 @@ var Funcao = (async function main() {
                                 const seletorPrecoCentavos = await section.$('.campo.valor .info.cor strong');
                                 const nomePrecoCentavos = await page.evaluate(seletorPrecoCentavos => seletorPrecoCentavos.innerText.replace(',','.'), seletorPrecoCentavos);
                                 
-                                await fs.appendFile('educamais/'+cidadeEscolhida+'.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeModalidade}','${nomeTurno}','${nomeLocal}','${nomeValorCheio}','${nomeDescontoBolsa}','${nomePreco}${nomePrecoCentavos}'\n`);
+                               // await fs.appendFile('educamais/'+cidadeEscolhida+'.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeModalidade}','${nomeTurno}','${nomeLocal}','${nomeValorCheio}','${nomeDescontoBolsa}','${nomePreco}${nomePrecoCentavos}'\n`);
                                 
                                 console.log('Faculdade: ',nomeFaculdade + '\nCurso: ', nomeCurso + '\nModalidade: ', nomeModalidade + '\nTurno: ', nomeTurno + '\nLocal: ', nomeLocal + '\nValor sem desconto: ', nomeValorCheio + '\nBolsa: ', nomeDescontoBolsa +'%' + '\nPreço: ', nomePreco+nomePrecoCentavos);
                                 
@@ -219,7 +219,8 @@ var Funcao = (async function main() {
                                     nomeValorCheio:nomeValorCheio,
                                     nomeDescontoBolsa:nomeDescontoBolsa,
                                     nomePreco:nomeprecoTotal,
-                                    nomeDataPesquisa: dataAtual
+                                    nomeDataPesquisa: dataAtual,
+                                    nomeCidadeEscolhida: cidadeEscolhida.toLocaleUpperCase()
 
                                 }
 
@@ -284,15 +285,15 @@ var Funcao = (async function main() {
     async function funcaoGravarDados(data){
         var sql = require('mssql');
         try {
+            const pool = await sql.connect('mssql://sa:homologacao@201.45.136.166:49700/CaptacaoConversaoGraduacao');
             for (let i = 0; i < data.length; i++){  
                 var dados = data[i];
-                const pool = await sql.connect('mssql://sa:homologacao@201.45.136.166:49700/CaptacaoConversaoGraduacao');
-                await sql.query`INSERT INTO dbo.PesquisaDeMercado (Origem,Faculdade,Curso,Modalidade,Turno,Local,PrecoSemDesconto,Bolsa,Preco,DataPesquisa)
+                await sql.query`INSERT INTO dbo.PesquisaDeMercado (Origem,Faculdade,Curso,Modalidade,Turno,Local,PrecoSemDesconto,Bolsa,Preco,DataPesquisa,CidadePesquisa)
                 VALUES (${dados.nomeOrigem},${dados.nomeFaculdade},${dados.nomeCurso},${dados.nomeModalidade},${dados.nomeTurno},
-                ${dados.nomeLocal},${dados.nomeValorCheio},${dados.nomeDescontoBolsa},${dados.nomePreco},${dados.nomeDataPesquisa})`;
-                await sql.close();
+                ${dados.nomeLocal},${dados.nomeValorCheio},${dados.nomeDescontoBolsa},${dados.nomePreco},${dados.nomeDataPesquisa},${dados.nomeCidadeEscolhida})`;
                 console.log('Gravando registro numero: '+(i+1)+' de '+data.length)
-           }
+            }
+            await sql.close();
         } catch (err) {
             console.log('Erro foi no Loop do Banco de dados: ',err);
         }
