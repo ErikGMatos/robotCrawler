@@ -16,7 +16,7 @@ var Funcao = (async function main() {
         async function timeout(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-        const cidadeEscolhida = 'jacarei';
+        const cidadeEscolhida = 'cicero dantas';
         console.log('acessando...');
         await page.goto('https://www.educamaisbrasil.com.br/');
         await page.waitForSelector('#loading', {visible:false});
@@ -277,7 +277,7 @@ var Funcao = (async function main() {
 
     async function SQLdados(){
         var dados = await Funcao();
-        funcaoGravarDados(dados);
+        await funcaoGravarDados(dados);
        console.log("Dados Gravado com sucesso");
     }
 
@@ -291,6 +291,7 @@ var Funcao = (async function main() {
                 VALUES (${dados.nomeOrigem},${dados.nomeFaculdade},${dados.nomeCurso},${dados.nomeModalidade},${dados.nomeTurno},
                 ${dados.nomeLocal},${dados.nomeValorCheio},${dados.nomeDescontoBolsa},${dados.nomePreco},${dados.nomeDataPesquisa})`;
                 await sql.close();
+                console.log('Gravando registro numero: '+(i+1)+' de '+data.length)
            }
         } catch (err) {
             console.log('Erro foi no Loop do Banco de dados: ',err);
