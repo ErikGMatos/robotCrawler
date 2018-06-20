@@ -1,9 +1,10 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs-extra');
 
-(async function main() {
+var Funcao = (async function main() {
     
     try {
+        let arraydedados = [];
         console.log('iniciando conexão...');
         const browser = await puppeteer.launch({headless: true,args: ['--start-fullscreen']});
         const page = await browser.newPage();
@@ -15,7 +16,7 @@ const fs = require('fs-extra');
         async function timeout(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-        const cidadeEscolhida = 'porto velho';
+        const cidadeEscolhida = 'sao francisco';
         console.log('acessando...');
         await page.goto('https://www.educamaisbrasil.com.br/');
         await page.waitForSelector('#loading', {visible:false});
@@ -30,28 +31,20 @@ const fs = require('fs-extra');
         await page.waitForSelector('#loading', {visible:false});
         await timeout(2000);
         var indice = 1;
-        
-
-        
         await timeout(1000);
-        //const cidadeEscolhida = await page.$('#sel_cidade div span span:last-child');
-        //const cidadeEscolhidaNome = await page.evaluate(cidadeEscolhida => cidadeEscolhida.innerText, cidadeEscolhida);
-        
-        await fs.writeFile('educamais/'+cidadeEscolhida+'.csv', 'Faculdade,Curso,Modalidade,Turno,Local,Valor cheio,Bolsa,Preço\n');
+        //await fs.writeFile('educamais/'+cidadeEscolhida+'.csv', 'Faculdade,Curso,Modalidade,Turno,Local,Valor cheio,Bolsa,Preço\n');
         await Loop1();
 
         async function Loop1() { 
 
             try {
-
-                const curosDisponiveis = await page.$$('#SuperiorPos .boxInstitucaoHome .lnkCursosDisponiveis span');
-               
+                const curosDisponiveis = await page.$$('#SuperiorPos .boxInstitucaoHome .lnkCursosDisponiveis span');              
                 const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
 
                 for (let k = 0; k < curosDisponiveis.length; k++){
                     await timeout(4000);
                     const curosDisponiveis = await page.$$('#SuperiorPos .boxInstitucaoHome .lnkCursosDisponiveis span');
-                     if (indice > 32){
+                    if (indice > 32){
                         const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
                         setaDireita.click();
                         await timeout(2000);
@@ -135,14 +128,11 @@ const fs = require('fs-extra');
                         setaDireita.click();
                         await timeout(2000);
                         setaDireita.click();
-                        
+
                     }else if (indice >4){
                         const setaDireita = await page.$('.carrosselBoxes-helpers .seta.seta-dir');
-                        setaDireita.click();
-                       
-                        
+                        setaDireita.click();                       
                     }
-
                     const next = curosDisponiveis[k];
                     next.click();
                     
@@ -160,9 +150,8 @@ const fs = require('fs-extra');
                             await timeout(2000);
                             const sections = await page.$$('#listaCursoSuperior .item-graduacao');
                             
-                            //let faculdadesPesquisar = $$('#SuperiorPos .boxInstitucaoHome:nth-child('+indice+')');
                             for (let i = 0; i < sections.length; i++){
-                                
+                                let obj ={};
                                 const sections = await page.$$('#listaCursoSuperior .item-graduacao');
                                 const paginaAtualSeleteor = await page.$('.paginacao li.active a');
                                 const paginaAtualNome = await page.evaluate(paginaAtualSeleteor => paginaAtualSeleteor.innerText, paginaAtualSeleteor);
@@ -189,7 +178,7 @@ const fs = require('fs-extra');
                                 const nomeLocal = await page.evaluate(seletorLocal => seletorLocal.innerText, seletorLocal);
                                 
                                 const seletorValorCheio = await section.$('.campo.valor span:first-child');
-                                const nomeValorCheio = await page.evaluate(seletorValorCheio => seletorValorCheio.innerText.split(' ')[1], seletorValorCheio);
+                                const nomeValorCheio = await page.evaluate(seletorValorCheio => seletorValorCheio.innerText.split(' ')[1].replace(',','.').replace('R$',''), seletorValorCheio);
                                 
                                 const seletorDescontoBolsa = await section.$('.campo.bolsa .destaque');
                                 const nomeDescontoBolsa = await page.evaluate(seletorDescontoBolsa => seletorDescontoBolsa.innerText, seletorDescontoBolsa);
@@ -198,13 +187,29 @@ const fs = require('fs-extra');
                                 const nomePreco = await page.evaluate(seletorPreco => seletorPreco.innerText, seletorPreco);
                                 
                                 const seletorPrecoCentavos = await section.$('.campo.valor .info.cor strong');
-                                const nomePrecoCentavos = await page.evaluate(seletorPrecoCentavos => seletorPrecoCentavos.innerText, seletorPrecoCentavos);
+                                const nomePrecoCentavos = await page.evaluate(seletorPrecoCentavos => seletorPrecoCentavos.innerText.replace(',','.'), seletorPrecoCentavos);
                                 
-                                await fs.appendFile('educamais/'+cidadeEscolhida+'.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeModalidade}','${nomeTurno}','${nomeLocal}','${nomeValorCheio}','${nomeDescontoBolsa}','${nomePreco}${nomePrecoCentavos}'\n`);
-                                
-                                console.log('Faculdade: ',nomeFaculdade + '\nCurso: ', nomeCurso + '\nModalidade: ', nomeModalidade + '\nTurno: ', nomeTurno + '\nLocal: ', nomeLocal + '\nValor sem desconto: ', nomeValorCheio + '\nBolsa: ', nomeDescontoBolsa +'%' + '\nPreço: ', nomePreco+nomePrecoCentavos);
-                                
+                               // await fs.appendFile('educamais/'+cidadeEscolhida+'.csv', `'${nomeFaculdade}','${nomeCurso}','${nomeModalidade}','${nomeTurno}','${nomeLocal}','${nomeValorCheio}','${nomeDescontoBolsa}','${nomePreco}${nomePrecoCentavos}'\n`);                              
+                                console.log('Faculdade: ',nomeFaculdade + '\nCurso: ', nomeCurso + '\nModalidade: ', nomeModalidade + '\nTurno: ', nomeTurno + '\nLocal: ', nomeLocal + '\nValor sem desconto: ', nomeValorCheio + '\nBolsa: ', nomeDescontoBolsa +'%' + '\nPreço: ', nomePreco+nomePrecoCentavos);                              
                                 console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+                                var nomeprecoTotal = `${nomePreco}${nomePrecoCentavos}`;
+                                var dataAtual = dataAtualFormatada();
+                                obj={
+                                    nomeOrigem:'EducaMaisBrasil',
+                                    cidadeEscolhida:cidadeEscolhida,
+                                    nomeFaculdade:nomeFaculdade,
+                                    nomeCurso:nomeCurso,
+                                    nomeModalidade:nomeModalidade,
+                                    nomeTurno:nomeTurno,
+                                    nomeLocal:nomeLocal,
+                                    nomeValorCheio:nomeValorCheio,
+                                    nomeDescontoBolsa:nomeDescontoBolsa,
+                                    nomePreco:nomeprecoTotal,
+                                    nomeDataPesquisa: dataAtual,
+                                    nomeCidadeEscolhida: cidadeEscolhida.toLocaleUpperCase()
+                                }
+
+                                arraydedados.push(obj);
                             }
                             
                             const nextBtn = await page.$('.paginacao li:nth-last-child(2) a');
@@ -220,38 +225,64 @@ const fs = require('fs-extra');
                                 
                                 console.log('entrou no ELSE');
                                 
-                            }
-                            
+                            }  
                         }catch (e){
                             
                             console.log('O erro foi do LOOP : ', e);
                         }
                     }
-
-
                     indice++;
-                   
-                    //await timeout(5000);
                     await page.goto('https://www.educamaisbrasil.com.br/');
                     await page.waitForSelector('#loading', {visible:false});
-
                 }
-                
             }
-            
             catch (e) {
                console.log('O erro foi no LOOP1', e.stack);
-           }
-            
-                
+           }  
         }
-
         console.log('\nTerminou :)!!!');
         await page.screenshot({path: 'screenshot.png'});
         await browser.close();
-            
+        return arraydedados;
         } catch (e) {
             
             console.log('O erro foi : ', e);
         }
-    })();
+    });
+
+    async function SQLdados(){
+        var dados = await Funcao();
+        await funcaoGravarDados(dados);
+       console.log("Dados Gravado com sucesso");
+    }
+
+    async function funcaoGravarDados(data){
+        var sql = require('mssql');
+        try {
+            const pool = await sql.connect('mssql://sa:homologacao@201.45.136.166:49700/CaptacaoConversaoGraduacao');
+            for (let i = 0; i < data.length; i++){  
+                var dados = data[i];
+                await sql.query`INSERT INTO dbo.PesquisaDeMercado (Origem,Faculdade,Curso,Modalidade,Turno,Local,PrecoSemDesconto,Bolsa,Preco,DataPesquisa,CidadePesquisa)
+                VALUES (${dados.nomeOrigem},${dados.nomeFaculdade},${dados.nomeCurso},${dados.nomeModalidade},${dados.nomeTurno},
+                ${dados.nomeLocal},${dados.nomeValorCheio},${dados.nomeDescontoBolsa},${dados.nomePreco},${dados.nomeDataPesquisa},${dados.nomeCidadeEscolhida})`;
+                console.log('Gravando registro numero: '+(i+1)+' de '+data.length)
+            }
+            await sql.close();
+        } catch (err) {
+            console.log('Erro foi no Loop do Banco de dados: ',err);
+        }
+    }
+
+    SQLdados();
+
+    function dataAtualFormatada(){
+        var data = new Date();
+        var dia = data.getDate();
+        if (dia.toString().length == 1)
+          dia = "0"+dia;
+        var mes = data.getMonth()+1;
+        if (mes.toString().length == 1)
+          mes = "0"+mes;
+        var ano = data.getFullYear();  
+        return dia+"/"+mes+"/"+ano;
+    }
