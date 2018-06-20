@@ -285,7 +285,7 @@ var Funcao = (async function main() {
     async function funcaoGravarDados(data){
         var sql = require('mssql');
         try {
-            const pool = await sql.connect('mssql://sa:homologacao@201.45.136.166:49700/CaptacaoConversaoGraduacao');
+            const pool = await sql.connect('mssql://sa:homologacao@201.000.000.000:00700/bancodedados');
             for (let i = 0; i < data.length; i++){  
                 var dados = data[i];
                 await sql.query`INSERT INTO dbo.PesquisaDeMercado (Origem,Faculdade,Curso,Modalidade,Turno,Local,PrecoSemDesconto,Bolsa,Preco,DataPesquisa,CidadePesquisa)
